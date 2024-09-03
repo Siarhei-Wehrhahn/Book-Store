@@ -23,6 +23,30 @@ function renderComments(index) {
     }
 }
 
+function addComment(book, index) {
+    const input = document.getElementById('inputFieldComment' + index);
+    const commentText = input.value.trim();
+
+    if (commentText !== "") {
+        // Stelle sicher, dass book.comments ein Array ist
+        if (!Array.isArray(book.comments)) {
+            book.comments = [];
+        }
+
+        // Füge den neuen Kommentar hinzu
+        const newComment = {
+            name: "Du",  // Der Benutzername, der den Kommentar hinzufügt
+            comment: commentText
+        };
+
+        book.comments.unshift(newComment);  // Füge den neuen Kommentar an den Anfang des Arrays hinzu
+        input.value = "";  // Leere das Eingabefeld
+
+        render();  // Aktualisiere die Darstellung der Bücherliste
+    }
+}
+
+
 function getBooks(book, bookIndex) {
     return /*html*/`
     <div class="book" id="book">
@@ -31,14 +55,14 @@ function getBooks(book, bookIndex) {
             <img class="book-cover" src="./assets/img/book_cover.jpg" alt="">
         </div>
         <div class="book-info">
-            <div class="price">
-                <p>${book.price}</p>
+         <div class="price">
+             <p>${book.price} €</p>
                 <div class="like">
-                    <span>${book.likes}</span>
-                    <span class="likeBtn" onclick="toggleLike(book)">${isLiked(book.isLiked)}</span>
+                 <span>${book.likes}</span>
+                 <span class="likeBtn" onclick="toggleLike(books[${bookIndex}])">${isLiked(book.liked)}</span>
                 </div>
             </div>
-            <div class="info">
+         <div class="info">
                 <table>
                     <tr>
                         <td>Autor</td>
@@ -63,11 +87,11 @@ function getBooks(book, bookIndex) {
                 </table>
             </div>
             <div class="comment-input">
-                <input id="inputFieldComment" type="text">
-                <img id="sendButton" src="./assets/icons/send_icon.png" alt="send_icon">
+                <input class="inputFieldComment" id="inputFieldComment${bookIndex}" type="text">
+                <img onclick="addComment(books[${bookIndex}], ${bookIndex})" id="sendButton" src="./assets/icons/send_icon.png" alt="send_icon">
             </div>
         </div>
-     </div>
+    </div>
     `;
 }
 
@@ -86,11 +110,14 @@ function isLiked(bookIsLiked) {
         : `<img src="./assets/icons/heartWhite.png" alt="heartWhite">`;
 }
 
+function toggleLike(book) {
+    book.liked = !book.liked; 
 
-function toggleLike(bookToLike) {
-    if (!bookToLike) {
-        bookToLike.liked = true
+    if (book.liked) {
+        book.likes++;
     } else {
-        bookToLike.liked = false
+        book.likes--;
     }
+
+    render();
 }
