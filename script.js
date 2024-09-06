@@ -9,6 +9,13 @@ function render() {
     commentBox.innerHTML = booksHtml;
 }
 
+function renderLikes(i) {
+    let likes = document.getElementById('bookLikes' + i);
+    let isLikedElement = document.getElementById('isLiked' + i);
+    likes.innerText = books[i].likes;
+    isLikedElement.innerHTML = isLiked(books[i].liked);    
+}
+
 function renderComments(index) {
     const comments = books[index].comments;
     if (comments && comments.length > 0) {
@@ -58,8 +65,8 @@ function getBooks(book, bookIndex) {
          <div class="price">
              <p>${book.price} €</p>
                 <div class="like">
-                 <span>${book.likes}</span>
-                 <span class="likeBtn" onclick="toggleLike(books[${bookIndex}])">${isLiked(book.liked)}</span>
+                 <span id="bookLikes${bookIndex}">${book.likes}</span>
+                 <span id="isLiked${bookIndex}" class="likeBtn" onclick="toggleLike(${bookIndex})">${isLiked(book.liked)}</span>
                 </div>
             </div>
          <div class="info">
@@ -110,8 +117,9 @@ function isLiked(bookIsLiked) {
         : `<img src="./assets/icons/heartWhite.png" alt="heartWhite">`;
 }
 
-function toggleLike(book) {
-    book.liked = !book.liked; 
+function toggleLike(i) {
+    let book = books[i];
+    book.liked = !book.liked;
 
     if (book.liked) {
         book.likes++;
@@ -119,5 +127,5 @@ function toggleLike(book) {
         book.likes--;
     }
 
-    render();
+    renderLikes(i);
 }
