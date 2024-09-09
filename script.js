@@ -1,12 +1,24 @@
-// Function to render all books
 function render() {
     const commentBox = document.getElementById('books');
     let booksHtml = '';
+
+    // Generiere das HTML für alle Bücher
     for (let i = 0; i < books.length; i++) {
         const book = books[i];
         booksHtml += getBooks(book, i);
     }
+
     commentBox.innerHTML = booksHtml;
+
+    // Jetzt, nachdem das HTML eingefügt wurde, die Kommentare für jedes Buch rendern
+    for (let i = 0; i < books.length; i++) {
+        renderComments(i);
+    }
+}
+
+function init() {
+    getFromLocalStorage();
+    render();
 }
 
 function renderLikes(i) {
@@ -17,16 +29,18 @@ function renderLikes(i) {
 }
 
 function renderComments(index) {
+    const commentsElement = document.getElementById('commentsId' + index);
     const comments = books[index].comments;
+    
     if (comments && comments.length > 0) {
         let commentsHtml = '';
         for (let i = 0; i < comments.length; i++) {
             const comment = comments[i];
             commentsHtml += getComments(comment);
         }
-        return commentsHtml;
+        commentsElement.innerHTML = commentsHtml;
     } else {
-        return `<p>Kommentiere als erstes</p>`;
+        commentsElement.innerHTML = `<p>Kommentiere als erstes</p>`;
     }
 }
 
@@ -35,24 +49,34 @@ function addComment(book, index) {
     const commentText = input.value.trim();
 
     if (commentText !== "") {
-        // Stelle sicher, dass book.comments ein Array ist
         if (!Array.isArray(book.comments)) {
             book.comments = [];
         }
 
-        // Füge den neuen Kommentar hinzu
         const newComment = {
-            name: "Du",  // Der Benutzername, der den Kommentar hinzufügt
+            name: "Du",
             comment: commentText
         };
 
-        book.comments.unshift(newComment);  // Füge den neuen Kommentar an den Anfang des Arrays hinzu
-        input.value = "";  // Leere das Eingabefeld
+        book.comments.unshift(newComment);
+        input.value = "";
 
-        render();  // Aktualisiere die Darstellung der Bücherliste
+        renderComments(index);
+        saveToLocalStorage();
     }
 }
 
+function saveToLocalStorage() {
+    localStorage.setItem("books", JSON.stringify(books));
+}
+
+function getFromLocalStorage() {
+    const storedBooks = JSON.parse(localStorage.getItem("books"));
+    
+    if (storedBooks) {
+        books = storedBooks;
+    }
+}
 
 function getBooks(book, bookIndex) {
     return /*html*/`
@@ -63,7 +87,7 @@ function getBooks(book, bookIndex) {
         </div>
         <div class="book-info">
          <div class="price">
-             <p>${book.price} €</p>
+             <p>${book.price.toFixed(2)} €</p>
                 <div class="like">
                  <span id="bookLikes${bookIndex}">${book.likes}</span>
                  <span id="isLiked${bookIndex}" class="likeBtn" onclick="toggleLike(${bookIndex})">${isLiked(book.liked)}</span>
@@ -89,9 +113,7 @@ function getBooks(book, bookIndex) {
         <div class="comment-box">
             <h3>Kommentare:</h3>
             <div class="comments">
-                <table id="commentsId">
-                    ${renderComments(bookIndex)}
-                </table>
+                <table id="commentsId${bookIndex}"></table>
             </div>
             <div class="comment-input">
                 <input class="inputFieldComment" id="inputFieldComment${bookIndex}" type="text">
@@ -128,4 +150,5 @@ function toggleLike(i) {
     }
 
     renderLikes(i);
+    saveToLocalStorage()
 }

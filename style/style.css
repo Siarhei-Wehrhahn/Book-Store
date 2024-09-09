@@ -216,3 +216,10 @@ body {
         width: 230px;
     }
 }
+
+@media(max-height: 880px) {
+    .comments {
+        height: 120px;
+        width: 100%; 
+    }
+}
